@@ -3,6 +3,8 @@ package com.jagadesh.orderservice.service;
 import com.jagadesh.orderservice.dto.OrderCreateRequestDto;
 import com.jagadesh.orderservice.dto.OrderItemInfoDto;
 import com.jagadesh.orderservice.dto.OrderStatusResponseDto;
+import com.jagadesh.orderservice.exception.OrderNotFoundException;
+import com.jagadesh.orderservice.exception.ProductNotFoundException;
 import com.jagadesh.orderservice.model.Order;
 import com.jagadesh.orderservice.model.OrderItem;
 import com.jagadesh.orderservice.model.OrderStatus;
@@ -54,7 +56,7 @@ public class OrderService {
         BigDecimal totalCost = BigDecimal.ZERO;
         for(OrderItemInfoDto item: itemInfo){
             BigDecimal price = productPriceViewRepo.findById(item.productId())
-                    .orElseThrow(() -> new RuntimeException("Product not found"))
+                    .orElseThrow(() -> new ProductNotFoundException("Product: {} not found".formatted(item.productId())))
                     .getPrice();
             BigDecimal itemCost = price.multiply(BigDecimal.valueOf(item.quantity()));
             totalCost = totalCost.add(itemCost);
@@ -64,20 +66,20 @@ public class OrderService {
 
     public OrderStatusResponseDto getOrderStatus(String orderId) {
         Order order = orderRepo.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException("Order: {} not found".formatted(orderId)));
         return new OrderStatusResponseDto(orderId, order.getOrderStatus().toString());
     }
 
     public void confirmOrder(String orderId) {
         Order order = orderRepo.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException("Order: {} not found".formatted(orderId)));
         order.confirm();
         orderRepo.save(order);
     }
 
     public void rejectOrder(String orderId) {
         Order order = orderRepo.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException("Order: {} not found".formatted(orderId)));
         if(order.isFinal()) return;
 
         order.onPaymentFailed(Instant.now());
