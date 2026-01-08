@@ -13,4 +13,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleCustomException(Exception exception) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ExceptionResponse(exception.getMessage()));
     }
+
+    @ExceptionHandler(ReservationNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleReservationNotFoundException(Exception exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionResponse(exception.getMessage()));
+    }
 }

@@ -4,6 +4,7 @@ import com.jagadesh.event.inventory.StockAddedEvent;
 import com.jagadesh.inventoryservice.dto.AddStockRequestDto;
 import com.jagadesh.inventoryservice.dto.StockAvailabilityStatus;
 import com.jagadesh.inventoryservice.exception.CustomException;
+import com.jagadesh.inventoryservice.exception.ReservationNotFoundException;
 import com.jagadesh.inventoryservice.model.Inventory;
 import com.jagadesh.inventoryservice.model.InventoryStatus;
 import com.jagadesh.inventoryservice.model.StockReservation;
@@ -101,7 +102,7 @@ public class InventoryService {
 
     public void releaseStock(String orderId) {
         List<StockReservation> reservation = stockReservationRepo.findByOrderId(orderId)
-                .orElseThrow(() -> new CustomException("Stock reservation not found for orderId: " + orderId));
+                .orElseThrow(() -> new ReservationNotFoundException("Stock reservation not found for orderId: " + orderId));
 
         for(StockReservation res: reservation) {
             Inventory inventory = inventoryRepo.findById(res.getProductId()).get();
@@ -114,7 +115,7 @@ public class InventoryService {
 
     public void consumeReservedStocks(String orderId) {
         List<StockReservation> reservedItems = stockReservationRepo.findByOrderId(orderId)
-                .orElseThrow(() -> new CustomException("Stock reservation not found for orderId: " + orderId));
+                .orElseThrow(() -> new ReservationNotFoundException("Stock reservation not found for orderId: " + orderId));
         for(StockReservation res: reservedItems) {
             Inventory inventory = inventoryRepo.findById(res.getProductId()).get();
             inventory.decreaseReservedQuantity(res.getQuantity());
