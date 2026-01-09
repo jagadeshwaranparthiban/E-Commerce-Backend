@@ -1,0 +1,18 @@
+server:
+  port: 9001
+
+spring:
+  application:
+    name: productQueryService
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/product_service
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
